@@ -1,9 +1,9 @@
 class Console
   HELLO_MESSAGE = <<~HELLO_MESSAGE.freeze
     Hello, we are RubyG bank!
-    - If you want to create account - press `create`
-    - If you want to load account - press `load`
-    - If you want to exit - press `exit`
+    - If you want to create account - press 'create'
+    - If you want to load account - press 'load'
+    - If you want to exit - press 'exit'
   HELLO_MESSAGE
 
   def initialize(account)
@@ -34,22 +34,22 @@ class Console
       when 'SC'
         @account.show_cards
       when 'CC'
-        @account.card.create
+        @account.create_card
       when 'DC'
-        @account.card.destroy
+        @account.destroy_card
       when 'PM'
-        @account.card.put_money
+        @account.put_money
       when 'WM'
-        @account.card.withdraw_money
+        @account.withdraw_money
       when 'SM'
-        @account.card.send_money
+        @account.send_money
       when 'DA'
         @account.destroy
         exit
       when 'exit'
         exit
       else
-        puts "Wrong command. Try again!\n"
+        puts "Wrong command. Try again\n"
       end
     end
   end
@@ -74,14 +74,19 @@ class Console
     read_from_console
   end
 
+  def credit_card_type
+      puts create_card_message
+      read_from_console
+  end
+
   private
 
   def read_from_console
-    gets.chomp
+      gets.chomp
   end
 
   def main_menu_message
-    <<~MAIN_MENU_MESSAGE
+    <<~MAIN_MENU_MESSAGE 
       \nWelcome, #{@account.current_account.name}
       If you want to:
       - show all cards - press SC
@@ -89,9 +94,20 @@ class Console
       - destroy card - press DC
       - put money on card - press PM
       - withdraw money on card - press WM
-      - send money to another card  - press SM
-      - destroy account - press `DA`
-      - exit from account - press `exit`
-    MAIN_MENU_MESSAGE
+      - send money to another card - press SM
+      - destroy account - press 'DA'
+      - exit from account - press 'exit'
+      MAIN_MENU_MESSAGE
   end
+
+  def create_card_message
+    <<~CREATE_CARD_MESSAGE
+      You could create one of 3 card types
+      - Usual card. 2% tax on card INCOME. 20$ tax on SENDING money from this card. 5% tax on WITHDRAWING money. For creation this card - press `usual`
+      - Capitalist card. 10$ tax on card INCOME. 10% tax on SENDING money from this card. 4$ tax on WITHDRAWING money. For creation this card - press `capitalist`
+      - Virtual card. 1$ tax on card INCOME. 1$ tax on SENDING money from this card. 12% tax on WITHDRAWING money. For creation this card - press `virtual`
+      - For exit - press `exit`
+      CREATE_CARD_MESSAGE
+  end
+
 end

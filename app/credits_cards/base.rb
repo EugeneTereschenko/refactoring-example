@@ -1,4 +1,4 @@
-class CreditCards::Base
+class CreditCardsTypes::Base
   def withdraw_tax
     raise NotImplementedError
   end
@@ -9,11 +9,5 @@ class CreditCards::Base
 
   def sender_tax
     raise NotImplementedError
-  end
-
-  private
-
-  def generate_card_number
-    16.times.map{ rand(10) }.join # TODO: optimize?
   end
 end
