@@ -1,0 +1,3 @@
+class CreditCards::Virtual
+
+end

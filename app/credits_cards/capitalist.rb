@@ -1,0 +1,3 @@
+class CreditCards::Capitalist
+  
+end
