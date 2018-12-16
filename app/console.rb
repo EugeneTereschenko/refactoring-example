@@ -34,15 +34,15 @@ class Console
       when 'SC'
         @account.show_cards
       when 'CC'
-        @account.create_card
+        @account.card.create
       when 'DC'
-        @account.destroy_card
+        @account.card.destroy
       when 'PM'
-        @account.put_money
+        @account.money.put
       when 'WM'
-        @account.withdraw_money
+        @account.money.withdraw
       when 'SM'
-        @account.send_money
+        @account.money.send
       when 'DA'
         @account.destroy
         exit
