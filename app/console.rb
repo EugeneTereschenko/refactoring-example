@@ -111,17 +111,17 @@ class Console
       when 'SC'
         show_cards
       when 'CC'
-        @account.card.create
+        create_card
       when 'DC'
-        @account.card.destroy
+        destroy_card
       when 'PM'
-        @account.money.put
+        put_money
       when 'WM'
-        @account.money.withdraw
+        withdraw_money
       when 'SM'
-        @account.money.send
+        send_money
       when 'DA'
-        @account.destroy
+        destroy_account
         exit
       when 'exit'
         exit
@@ -129,6 +129,30 @@ class Console
         puts "Wrong command. Try again\n"
       end
     end
+  end
+
+  def create_card
+    @account.card.create
+  end
+
+  def destroy_card
+    @account.card.destroy
+  end
+
+  def put_money
+    @account.money.put
+  end
+
+  def withdraw_money
+    @account.money.withdraw
+  end
+
+  def send_money
+    @account.money.send
+  end
+
+  def destroy_account
+    @account.destroy
   end
 
   def name_input
