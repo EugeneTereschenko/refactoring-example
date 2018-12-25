@@ -8,7 +8,7 @@ require_relative 'money'
 
 class Account
   attr_reader :card, :console, :money
-  attr_reader :current_account, :name, :password, :login, :age
+  attr_accessor :current_account, :name, :password, :login, :age
   attr_accessor :cards
 
   def initialize(file_path = 'accounts.yml')
@@ -18,65 +18,18 @@ class Account
     @card = Card.new(self)
     @money = Money.new(self)
     @validator = Validators::Account.new
+    @current_account = self
   end
 
   def hello
-    @console.hello
+    @console.console
   end
 
   def create
-    loop do
-      @name = @console.name_input
-      @age = @console.age_input
-      @login = @console.login_input
-      @password = @console.password_input
-
-      @validator.validate(self)
-
-      break if @validator.valid?
-
-      @validator.puts_errors
-    end
-
     @cards = []
     new_accounts = accounts << self
     @current_account = self
     store_accounts(new_accounts)
-    @console.main_menu
-  end
-
-  def load
-    loop do
-      if !accounts.any?
-        return create_the_first_account
-      end
-
-      puts 'Enter your login'
-      login = gets.chomp
-      puts 'Enter your password'
-      password = gets.chomp
-
-      if accounts.map { |a| { login: a.login, password: a.password } }.include?({ login: login, password: password})
-        a = accounts.select { |a| login == a.login }.first
-        @cards = a.cards
-        @current_account = a
-        @login = a.login
-        break
-      else
-        puts 'There is no account with given credentials'
-        next
-      end
-    end
-    @console.main_menu
-  end
-
-  def create_the_first_account
-    puts 'There is no active accounts, do you want to be the first?[y/n]'
-    if gets.chomp == 'y'
-      return create
-    else
-      return console
-    end
   end
 
   def destroy
@@ -95,20 +48,9 @@ class Account
   end
 
   def accounts
-    return [] unless File.exists?('accounts.yml')
+    return [] unless File.exist?('accounts.yml')
 
     YAML.load_file('accounts.yml') || []
-  end
-
-  def show_cards
-    if @current_account.cards.any?
-      @current_account.cards.each do |c|
-        puts "- #{c.number}, #{c.type}"
-      end
-    else
-      puts "There is no active cards!\n"
-    end
-    @console.main_menu
   end
 
   def store_accounts(new_accounts)

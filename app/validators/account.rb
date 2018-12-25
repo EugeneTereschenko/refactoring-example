@@ -7,7 +7,7 @@ class Validators::Account
 
   def validate(account)
     initialize_account(account)
-
+    @errors = []
     validate_name
     validate_age
     validate_login
@@ -20,7 +20,6 @@ class Validators::Account
 
   def puts_errors
     @errors.each { |error| puts error }
-    @errors = []
   end
 
   private

@@ -1,4 +1,4 @@
-RSpec.describe Account do
+RSpec.describe Console do
   OVERRIDABLE_FILENAME = 'spec/fixtures/account.yml'.freeze
 
   COMMON_PHRASES = {
@@ -94,7 +94,7 @@ RSpec.describe Account do
     }
   }.freeze
 
-  let(:current_subject) { described_class.new }
+  let(:current_subject) { described_class.new(Account.new(OVERRIDABLE_FILENAME)) }
 
   describe '#console' do
     context 'when correct method calling' do
@@ -339,7 +339,7 @@ RSpec.describe Account do
   end
 
   describe '#main_menu' do
-    let(:name) { 'John' }
+    let(:name) { '' }
     let(:commands) do
       {
         'SC' => :show_cards,

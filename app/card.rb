@@ -33,6 +33,7 @@ class Card
     cards = @account.cards << card
     @account.cards = cards #important!!!
     new_accounts = []
+    puts @account
     @account.accounts.each do |ac|
       if ac.login == @account.login
         new_accounts.push(@account)
@@ -60,9 +61,7 @@ class Card
           puts "Are you sure you want to delete #{@account.cards[answer&.to_i.to_i - 1].number}?[y/n]"
           user_answer = gets.chomp
           if user_answer == 'y'
-            puts @account.cards
             @account.cards.delete_at(answer&.to_i.to_i - 1)
-            puts @account.cards
             new_accounts = []
             @account.accounts.each do |ac|
               if ac.login == @account.login
