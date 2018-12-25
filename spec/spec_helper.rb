@@ -1,5 +1,5 @@
 require 'simplecov'
-require 'undercover'
+#require 'undercover'
 
 SimpleCov.start do
   add_filter(%r{\/spec\/})
