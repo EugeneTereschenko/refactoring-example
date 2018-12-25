@@ -3,7 +3,7 @@ RSpec.describe Console do
 
   COMMON_PHRASES = {
     create_first_account: "There is no active accounts, do you want to be the first?[y/n]\n",
-    destroy_account: "Are you sure you want to destroy account?[y/n]\n",
+    destroy_account: "Are you sure want to destroy account?[y/n]\n",
     if_you_want_to_delete: 'If you want to delete:',
     choose_card: 'Choose the card for putting:',
     choose_card_withdrawing: 'Choose the card for withdrawing:',
@@ -162,7 +162,7 @@ RSpec.describe Console do
         accounts = YAML.load_file(OVERRIDABLE_FILENAME)
         expect(accounts).to be_a Array
         expect(accounts.size).to be 1
-        accounts.map { |account| expect(account).to be_a described_class }
+        accounts.map { |account| expect(account).to be_a Account }
       end
     end
 
@@ -214,7 +214,7 @@ RSpec.describe Console do
           let(:error) { ACCOUNT_VALIDATION_PHRASES[:login][:exists] }
 
           before do
-            allow(current_subject).to receive(:accounts) { [instance_double('Account', login: error_input)] }
+            allow_any_instance_of(Account).to receive(:accounts) { [instance_double('Account', login: error_input)] }
           end
 
           it { expect { current_subject.create }.to output(/#{error}/).to_stdout }
@@ -280,7 +280,7 @@ RSpec.describe Console do
 
       before do
         allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(*all_inputs)
-        allow(current_subject).to receive(:accounts) { [instance_double('Account', login: login, password: password)] }
+        allow(current_subject).to receive(:accounts) { [instance_double('Account', login: login, password: password, cards: [])] }
       end
 
       context 'with correct outout' do
@@ -439,13 +439,13 @@ RSpec.describe Console do
     let(:cards) { [{ number: 1234, type: 'a' }, { number: 5678, type: 'b' }] }
 
     it 'display cards if there are any' do
-      current_subject.instance_variable_set(:@current_account, instance_double('Account', card: cards))
+      current_subject.instance_variable_set(:@account, instance_double('Account', cards: cards))
       cards.each { |card| expect(current_subject).to receive(:puts).with("- #{card[:number]}, #{card[:type]}") }
       current_subject.show_cards
     end
 
     it 'outputs error if there are no active cards' do
-      current_subject.instance_variable_set(:@current_account, instance_double('Account', card: []))
+      current_subject.instance_variable_set(:@account, instance_double('Account', cards: []))
       expect(current_subject).to receive(:puts).with(ERROR_PHRASES[:no_active_cards])
       current_subject.show_cards
     end
@@ -598,7 +598,7 @@ RSpec.describe Console do
   describe '#put_money' do
     context 'without cards' do
       it 'shows message about not active cards' do
-        current_subject.instance_variable_set(:@current_account, instance_double('Account', card: []))
+        current_subject.instance_variable_set(:@current_account, instance_double('Account', cards: []))
         expect { current_subject.put_money }.to output(/#{ERROR_PHRASES[:no_active_cards]}/).to_stdout
       end
     end
@@ -730,7 +730,7 @@ RSpec.describe Console do
   describe '#withdraw_money' do
     context 'without cards' do
       it 'shows message about not active cards' do
-        current_subject.instance_variable_set(:@current_account, instance_double('Account', card: []))
+        current_subject.instance_variable_set(:@current_account, instance_double('Account', cards: []))
         expect { current_subject.withdraw_money }.to output(/#{ERROR_PHRASES[:no_active_cards]}/).to_stdout
       end
     end

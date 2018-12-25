@@ -18,10 +18,6 @@ class Validators::Account
     @errors.size.zero?
   end
 
-  def puts_errors
-    @errors.each { |error| puts error }
-  end
-
   private
 
   def initialize_account(account)

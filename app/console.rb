@@ -8,6 +8,12 @@ class Console
     - If you want to exit - press `exit`
   HELLO_MESSAGE
 
+  VALID_TYPES = %w[
+    usual
+    capitalist
+    virtual
+  ]
+
   def initialize(account)
     @account = account
     @validator = Validators::Account.new
@@ -40,11 +46,10 @@ class Console
       @account.password = password_input
       @validator.validate(@account)
 
-      break if @validator.valid?
+      puts_errors(@validator.errors)
 
-      @validator.puts_errors
+      break if @validator.valid?
     end
-    @validator.puts_errors
 
     @account.create
     main_menu
@@ -58,9 +63,6 @@ class Console
       login = gets.chomp
       puts 'Enter your password'
       password = gets.chomp
-      puts accounts
-      f = accounts.map { |acc| { login: acc.login, password: acc.password } }
-      puts f
       if accounts.map { |acc| { login: acc.login, password: acc.password } }.include?(login: login, password: password)
         acc_temp = accounts.select { |a| login == a.login }.first
         @account.cards = acc_temp.cards
@@ -86,9 +88,9 @@ class Console
 
 
   def show_cards
-    if @account.current_account.cards.any?
-      @account.current_account.cards.each do |c|
-        puts "- #{c.number}, #{c.type}"
+    if @account.cards.any?
+      @account.cards.each do |card|
+        puts "- #{card[:number]}, #{card[:type]}"
       end
     else
       puts "There is no active cards!\n"
@@ -97,9 +99,7 @@ class Console
   end
 
   def accounts
-    return [] unless File.exist?('accounts.yml')
-
-    YAML.load_file('accounts.yml') || []
+    @account.accounts
   end
 
   def main_menu
@@ -132,27 +132,31 @@ class Console
   end
 
   def create_card
-    @account.card.create
+    type = credit_card_type
+    return main_menu unless VALID_TYPES.include?(type)
+    @account.create_card(type)
   end
 
   def destroy_card
-    @account.card.destroy
+    @account.destroy_card
   end
 
   def put_money
-    @account.money.put
+    @account.put_card
   end
 
   def withdraw_money
-    @account.money.withdraw
+    @account.withdraw_card
   end
 
   def send_money
-    @account.money.send
+    @account.send_card
   end
 
   def destroy_account
-    @account.destroy
+    puts 'Are you sure want to destroy account?[y/n]'
+    command = gets.chomp
+    @account.destroy(command)
   end
 
   def name_input
@@ -176,8 +180,17 @@ class Console
   end
 
   def credit_card_type
-    puts create_card_message
+    #puts create_card_message
+    puts 'You could create one of 3 card types'
+    puts '- Usual card. 2% tax on card INCOME. 20$ tax on SENDING money from this card. 5% tax on WITHDRAWING money. For creation this card - press `usual`'
+    puts '- Capitalist card. 10$ tax on card INCOME. 10% tax on SENDING money from this card. 4$ tax on WITHDRAWING money. For creation this card - press `capitalist`'
+    puts '- Virtual card. 1$ tax on card INCOME. 1$ tax on SENDING money from this card. 12% tax on WITHDRAWING money. For creation this card - press `virtual`'
+    puts '- For exit - press `exit`'
     read_from_console
+  end
+
+  def puts_errors(errors)
+    errors.each { |error| puts error }
   end
 
   private
