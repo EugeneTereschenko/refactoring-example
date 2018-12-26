@@ -1,3 +1,3 @@
 require_relative 'app/account'
 
-Account.new.hello
+Console.new(Account.new)

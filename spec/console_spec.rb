@@ -95,6 +95,7 @@ RSpec.describe Console do
   }.freeze
 
   let(:current_subject) { described_class.new(Account.new(OVERRIDABLE_FILENAME)) }
+  let(:account_subject) { Account.new(OVERRIDABLE_FILENAME) }
 
   describe '#console' do
     context 'when correct method calling' do
@@ -455,8 +456,9 @@ RSpec.describe Console do
     context 'with correct outout' do
       it do
         CREATE_CARD_PHRASES.each { |phrase| expect(current_subject).to receive(:puts).with(phrase) }
-        current_subject.instance_variable_set(:@card, [])
-        current_subject.instance_variable_set(:@current_account, current_subject)
+        #allow_any_instance_of(Account).to receive(:create_card)
+        current_subject.instance_variable_set(:@cards, [])
+        current_subject.instance_variable_set(:@account, account_subject)
         allow(current_subject).to receive(:accounts).and_return([])
         allow(File).to receive(:open)
         expect(current_subject).to receive_message_chain(:gets, :chomp) { 'usual' }
@@ -467,10 +469,13 @@ RSpec.describe Console do
 
     context 'when correct card choose' do
       before do
-        allow(current_subject).to receive(:card).and_return([])
-        allow(current_subject).to receive(:accounts) { [current_subject] }
+        allow_any_instance_of(Account).to receive(:create_card)
+        current_subject.instance_variable_set(:@account, instance_double('Account', cards: []))
+        allow(current_subject).to receive(:cards).and_return([])
+        allow(current_subject).to receive(:accounts) { [ instance_double('Account', cards: [])] }
         current_subject.instance_variable_set(:@file_path, OVERRIDABLE_FILENAME)
-        current_subject.instance_variable_set(:@current_account, current_subject)
+        current_subject.instance_variable_set(:@current_account,  instance_double('Account', cards: []))
+
       end
 
       after do
@@ -494,8 +499,8 @@ RSpec.describe Console do
 
     context 'when incorrect card choose' do
       it do
-        current_subject.instance_variable_set(:@card, [])
-        current_subject.instance_variable_set(:@current_account, current_subject)
+        current_subject.instance_variable_set(:@cards, [])
+        current_subject.instance_variable_set(:@account, current_subject)
         allow(File).to receive(:open)
         allow(current_subject).to receive(:accounts).and_return([])
         allow(current_subject).to receive_message_chain(:gets, :chomp).and_return('test', 'usual')

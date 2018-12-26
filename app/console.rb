@@ -12,7 +12,7 @@ class Console
     usual
     capitalist
     virtual
-  ]
+  ].freeze
 
   def initialize(account)
     @account = account
@@ -86,7 +86,6 @@ class Console
     end
   end
 
-
   def show_cards
     if @account.cards.any?
       @account.cards.each do |card|
@@ -134,6 +133,7 @@ class Console
   def create_card
     type = credit_card_type
     return main_menu unless VALID_TYPES.include?(type)
+
     @account.create_card(type)
   end
 
@@ -141,12 +141,59 @@ class Console
     @account.destroy_card
   end
 
+  def cards
+    @account.cards
+  end
+
   def put_money
     @account.put_card
   end
 
-  def withdraw_money
-    @account.withdraw_card
+  # def withdraw_money
+  #  @account.withdraw_card
+  # end
+
+  def withdraw_card
+    puts 'Choose the card for withdrawing:'
+    answer, user_answer, money_withdraw = nil # answers for gets.chomp
+    puts "There is no active cards!\n" unless @account.cards.any?
+
+    @account.cards.each_with_index do |c, i|
+      puts "- #{c.number}, #{c.type}, press #{i + 1}"
+    end
+    puts "press `exit` to exit\n"
+
+    loop do
+      answer = gets.chomp
+      break if answer == 'exit'
+      return puts "You entered wrong number!\n" unless answer&.to_i.to_i <= @cards.length && answer&.to_i.to_i > 0
+
+      current_card = @cards[answer&.to_i.to_i - 1]
+      loop do
+        puts 'Input the amount of money you want to withdraw'
+        user_answer = gets.chomp
+        return puts 'You must input correct amount of $' unless user_answer&.to_i.to_i > 0
+
+        money_left = current_card.balance - user_answer&.to_i.to_i - current_card.withdraw_tax(user_answer&.to_i.to_i)
+        if money_left > 0
+          current_card.balance = money_left
+          @cards[answer&.to_i.to_i - 1] = current_card
+          new_accounts = []
+          accounts.each do |ac|
+            if ac.login == @login
+              new_accounts.push(self)
+            else
+              new_accounts.push(ac)
+            end
+          end
+          store_accounts(new_accounts)
+          puts "Money #{user_answer&.to_i.to_i} withdrawed from #{current_card.number}$. Money left: #{current_card.balance}$. Tax: #{current_card.withdraw_tax(user_answer&.to_i.to_i)}$"
+          @console.main_menu
+        else
+          return puts "You don't have enough money on card for such operation"
+        end
+      end
+    end
   end
 
   def send_money
@@ -180,7 +227,7 @@ class Console
   end
 
   def credit_card_type
-    #puts create_card_message
+    # puts create_card_message
     puts 'You could create one of 3 card types'
     puts '- Usual card. 2% tax on card INCOME. 20$ tax on SENDING money from this card. 5% tax on WITHDRAWING money. For creation this card - press `usual`'
     puts '- Capitalist card. 10$ tax on card INCOME. 10% tax on SENDING money from this card. 4$ tax on WITHDRAWING money. For creation this card - press `capitalist`'

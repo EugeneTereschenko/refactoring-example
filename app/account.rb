@@ -11,15 +11,10 @@ class Account
   attr_accessor :cards
 
   def initialize(file_path = 'accounts.yml')
-    @errors = []
     @file_path = file_path
-    @console = Console.new(self)
+    #@console = Console.new(self)
     @validator = Validators::Account.new
     @current_account = self
-  end
-
-  def hello
-    @console.console
   end
   
   def create
