@@ -1,9 +1,8 @@
 require 'yaml'
 require 'pry'
 
-require_relative 'console'
 require_relative 'validators/validators'
-require_relative 'card'
+
 
 class Account
   attr_reader :card, :console, :money

@@ -1,6 +1,13 @@
 require_relative 'validators/validators'
+require_relative 'card'
+require_relative 'account'
 
 class Console
+
+  attr_reader :card, :console, :money
+  attr_accessor :account
+  attr_accessor :cards
+
   HELLO_MESSAGE = <<~HELLO_MESSAGE.freeze
     Hello, we are RubyG bank!
     - If you want to create account - press `create`
@@ -89,7 +96,8 @@ class Console
   def show_cards
     if @account.cards.any?
       @account.cards.each do |card|
-        puts "- #{card[:number]}, #{card[:type]}"
+        puts "- #{card.number}, #{card.type}"
+#        puts "- #{card[:number]}, #{card[:type]}"
       end
     else
       puts "There is no active cards!\n"
@@ -143,7 +151,7 @@ class Console
         new_accounts.push(ac)
       end
     end
-    store_accounts(new_accounts)
+    @account.store_accounts(new_accounts)
     main_menu
   end
 
@@ -155,11 +163,11 @@ class Console
   def create_card_type(type)
     case type
     when 'usual'
-      @cards << CreditCardsTypes::Usual.new
+      @account.cards << CreditCardsTypes::Usual.new
     when 'capitalist'
-      @cards << CreditCardsTypes::Capitalist.new
+      @account.cards << CreditCardsTypes::Capitalist.new
     when 'virtual'
-      @cards << CreditCardsTypes::Virtual.new
+      @account.cards << CreditCardsTypes::Virtual.new
     end
   end
 
@@ -209,7 +217,7 @@ class Console
               new_accounts.push(ac)
             end
           end
-          store_accounts(new_accounts)
+          @account.store_accounts(new_accounts)
           puts "Money #{money_withdraw&.to_i.to_i}$ was put on #{sender_card.number}. Balance: #{sender_balance}. Tax: #{sender_card.put_tax(money_withdraw&.to_i.to_i)}$\n"
           puts "Money #{money_withdraw&.to_i.to_i}$ was put on #{user_answer}. Balance: #{recipient_balance}. Tax: #{recipient_card.sender_tax(money_withdraw&.to_i.to_i)}$\n"
           main_menu
@@ -252,7 +260,7 @@ class Console
                     new_accounts.push(ac)
                   end
                 end
-                store_accounts(new_accounts)
+                @account.store_accounts(new_accounts)
                 puts "Money #{user_answer&.to_i.to_i} was put on #{current_card.number}. Balance: #{current_card.balance}. Tax: #{current_card.put_tax(user_answer&.to_i.to_i)}"
                 main_menu
               end
@@ -296,7 +304,7 @@ class Console
               new_accounts.push(ac)
             end
           end
-          store_accounts(new_accounts)
+          @account.store_accounts(new_accounts)
           puts "Money #{user_answer&.to_i.to_i} withdrawed from #{current_card.number}$. Money left: #{current_card.balance}$. Tax: #{current_card.withdraw_tax(user_answer&.to_i.to_i)}$"
           main_menu
         else
@@ -331,7 +339,7 @@ class Console
                 new_accounts.push(ac)
               end
             end
-            store_accounts(new_accounts)
+            @account.store_accounts(new_accounts)
             main_menu
           else
             return
