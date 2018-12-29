@@ -1,3 +1,3 @@
 require './autoload.rb'
 
-Console.new(Account.new).console
+Console.new.console

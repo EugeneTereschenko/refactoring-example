@@ -20,9 +20,8 @@ class Console
     exit
   ].freeze
 
-
-  def initialize(account)
-    @account = account
+  def initialize
+    @account = Account.new
     @validator = Validators::Account.new
   end
 
@@ -377,10 +376,6 @@ class Console
 
   def puts_errors(errors)
     errors.each { |error| puts error }
-  end
-
-  def message(msg)
-    puts I18n.t(msg)
   end
 
   def message(msg, params = {})

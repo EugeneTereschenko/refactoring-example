@@ -94,7 +94,7 @@ RSpec.describe Console do
     }
   }.freeze
 
-  let(:current_subject) { described_class.new(Account.new(OVERRIDABLE_FILENAME)) }
+  let(:current_subject) { described_class.new }
   let(:account_subject) { Account.new(OVERRIDABLE_FILENAME) }
 
   describe '#console' do
