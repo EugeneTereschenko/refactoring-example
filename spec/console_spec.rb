@@ -75,8 +75,8 @@ RSpec.describe Console do
     '- put money on card - press PM',
     '- withdraw money on card - press WM',
     '- send money to another card  - press SM',
-    '- destroy account - press `DA`',
-    '- exit from account - press `exit`'
+    '- destroy account - press DA',
+    '- exit from account - press exit'
   ].freeze
 
   CARDS = {
@@ -437,11 +437,12 @@ RSpec.describe Console do
   end
 
   describe '#show_cards' do
-    let(:cards) { [{ number: 1234, type: 'a' }, { number: 5678, type: 'b' }] }
+    #let(:cards) { [{ number: 1234, type: 'a' }, { number: 5678, type: 'b' }] }
+    let(:cards) { [CreditCardsTypes::Usual.new, CreditCardsTypes::Virtual.new] }
 
     it 'display cards if there are any' do
-      current_subject.instance_variable_set(:@account, instance_double('Account', cards: cards))
-      cards.each { |card| expect(current_subject).to receive(:puts).with("- #{card[:number]}, #{card[:type]}") }
+      current_subject.instance_variable_set(:@account, instance_double('Account', cards: cards, name: "petya"))
+      cards.each { |card| expect(current_subject).to receive(:puts).with("- #{card.number}, #{card.type}") }
       current_subject.show_cards
     end
 
@@ -456,7 +457,7 @@ RSpec.describe Console do
     context 'with correct outout' do
       it do
         CREATE_CARD_PHRASES.each { |phrase| expect(current_subject).to receive(:puts).with(phrase) }
-        #allow_any_instance_of(Account).to receive(:create_card)
+        # allow_any_instance_of(Account).to receive(:create_card)
         current_subject.instance_variable_set(:@cards, [])
         current_subject.instance_variable_set(:@account, account_subject)
         allow(current_subject).to receive(:accounts).and_return([])
@@ -472,10 +473,9 @@ RSpec.describe Console do
         allow_any_instance_of(Account).to receive(:create_card)
         current_subject.instance_variable_set(:@account, instance_double('Account', cards: []))
         allow(current_subject).to receive(:cards).and_return([])
-        allow(current_subject).to receive(:accounts) { [ instance_double('Account', cards: [])] }
+        allow(current_subject).to receive(:accounts) { [instance_double('Account', cards: [])] }
         current_subject.instance_variable_set(:@file_path, OVERRIDABLE_FILENAME)
-        current_subject.instance_variable_set(:@current_account,  instance_double('Account', cards: []))
-
+        current_subject.instance_variable_set(:@current_account, instance_double('Account', cards: []))
       end
 
       after do

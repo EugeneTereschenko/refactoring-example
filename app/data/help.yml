@@ -1,0 +1,18 @@
+en:
+  hello_message: |
+    Hello, we are RubyG bank!
+    - If you want to create account - press `create`
+    - If you want to load account - press `load`
+    - If you want to exit - press `exit`
+  main_menu_message: |
+    Welcome, %{name} 
+    If you want to
+    - show all cards - press SC
+    - create card - press CC
+    - destroy card - press DC
+    - put money on card - press PM
+    - withdraw money on card - press WM
+    - send money to another card - press SM
+    - destroy account - press 'DA'
+    - exit from account - press 'exit'
+

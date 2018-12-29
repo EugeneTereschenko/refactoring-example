@@ -8,6 +8,7 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 group :development do
   gem 'fasterer'
   gem 'pry'
+  gem 'i18n'
   gem 'rubocop'
   gem 'rubocop-rspec'
 end

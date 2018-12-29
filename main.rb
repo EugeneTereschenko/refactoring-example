@@ -1,4 +1,3 @@
-require_relative 'app/account'
-require_relative 'app/console'
+require './autoload.rb'
 
 Console.new(Account.new).console
