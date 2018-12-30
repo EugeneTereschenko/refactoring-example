@@ -69,7 +69,7 @@ DEPENDENCIES
   fasterer
   i18n
   pry
-  rspec (~> 3.0)
+  rspec (~> 3.8)
   rspec_junit_formatter
   rubocop
   rubocop-rspec

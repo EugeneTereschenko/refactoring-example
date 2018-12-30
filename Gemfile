@@ -14,7 +14,7 @@ group :development do
 end
 
 group :test do
-  gem "rspec", "~> 3.0"
+  gem "rspec", "~> 3.8"
   gem 'simplecov'
   gem 'simplecov-lcov'
   gem 'rspec_junit_formatter'

@@ -20,8 +20,8 @@ class Console
     exit
   ].freeze
 
-  def initialize
-    @account = Account.new
+  def initialize(account)
+    @account = account
     @validator = Validators::Account.new
   end
 
@@ -47,9 +47,9 @@ class Console
       @account.password = password_input
       @validator.validate(@account)
 
-      puts_errors(@validator.errors)
-
       break if @validator.valid?
+
+      puts_errors(@validator.errors)
     end
 
     @account.create
@@ -60,9 +60,9 @@ class Console
     loop do
       return create_the_first_account if accounts.none?
 
-      puts 'Enter your login'
+      message(:put_login)
       login = gets.chomp
-      puts 'Enter your password'
+      message(:put_passw)
       password = gets.chomp
       if accounts.map { |acc| { login: acc.login, password: acc.password } }.include?(login: login, password: password)
         acc_temp = accounts.select { |a| login == a.login }.first
@@ -71,7 +71,7 @@ class Console
         @account.current_account = acc_temp
         break
       else
-        puts 'There is no account with given credentials'
+        message(:credentials)
         next
       end
     end
@@ -79,22 +79,19 @@ class Console
   end
 
   def create_the_first_account
-    puts 'There is no active accounts, do you want to be the first?[y/n]'
-    if gets.chomp == 'y'
-      return create
-    else
-      return console
-    end
+    message(:first_account)
+    return create if gets.chomp == 'y'
+
+    console
   end
 
   def show_cards
     if @account.cards.any?
       @account.cards.each do |card|
         puts "- #{card.number}, #{card.type}"
-        #  puts "- #{card[:number]}, #{card[:type]}"
       end
     else
-      puts "There is no active cards!\n"
+      message(:active_cards)
     end
     main_menu
   end
@@ -104,11 +101,12 @@ class Console
   end
 
   def main_menu
-    main_menu_message
     loop do
+      main_menu_message
+
       command = gets.chomp
 
-      puts "Wrong command. Try again\n" unless MENU_COMMANDS.include?(command)
+      message(:wrong_command) unless MENU_COMMANDS.include?(command)
       case command
       when 'SC'
         show_cards
@@ -139,8 +137,8 @@ class Console
     create_card_type(type)
     new_accounts = []
     accounts.each do |ac|
-      if ac.login == @login
-        new_accounts.push(self)
+      if ac.login == @account.login
+        new_accounts.push(@account)
       else
         new_accounts.push(ac)
       end
@@ -161,38 +159,38 @@ class Console
   end
 
   def send_money
-    puts 'Choose the card for sending:'
+    message(:choose_card)
 
-    return puts "There is no active cards!\n" unless @account.cards.any?
+    return message(:active_cards) unless @account.cards.any?
 
     @account.cards.each_with_index do |c, i|
       puts "- #{c.number}, #{c.type}, press #{i + 1}"
     end
-    puts "press `exit` to exit\n"
+    message(:press_exit)
     answer = gets.chomp
     exit if answer == 'exit'
-    return puts 'Choose correct card' unless answer&.to_i.to_i <= @account.cards.length && answer&.to_i.to_i > 0
+    return message(:correct_card) unless answer&.to_i.to_i <= @account.cards.length && answer&.to_i.to_i > 0
 
     sender_card = @account.cards[answer&.to_i.to_i - 1]
 
-    puts 'Enter the recipient card:'
+    message(:recipient_card)
     user_answer = gets.chomp
-    return puts 'Please, input correct number of card' unless user_answer.length > 15 && user_answer.length < 17
-    return puts "There is no card with number #{user_answer}\n" unless @account.cards.select { |card| card.number == user_answer }.any?
+    return message(:correct_number) unless user_answer.length > 15 && user_answer.length < 17
+    return message(:card_number, user_answer: user_answer) unless @account.cards.select { |card| card.number == user_answer }.any?
 
     recipient_card = @account.cards.select { |card| card.number == user_answer }.first
 
     loop do
-      puts 'Input the amount of money you want to withdraw'
+      message(:money_withdraw)
       money_withdraw = gets.chomp
       if money_withdraw&.to_i.to_i > 0
         sender_balance = sender_card.balance - money_withdraw&.to_i.to_i - sender_card.sender_tax(money_withdraw&.to_i.to_i)
         recipient_balance = recipient_card.balance + money_withdraw&.to_i.to_i - recipient_card.put_tax(money_withdraw&.to_i.to_i)
 
         if sender_balance < 0
-          puts "You don't have enough money on card for such operation"
+          message(:money_on_card)
         elsif recipient_card.put_tax(money_withdraw&.to_i.to_i) >= money_withdraw&.to_i.to_i
-          puts 'There is no enough money on sender card'
+          message(:no_money)
         else
           sender_card.balance = sender_balance
           @account.cards[answer&.to_i.to_i - 1] = sender_card
@@ -201,44 +199,44 @@ class Console
 
           new_accounts = []
           accounts.each do |ac|
-            if ac.login == @login
-              new_accounts.push(self)
+            if ac.login == @account.login
+              new_accounts.push(@account)
             else
               new_accounts.push(ac)
             end
           end
           @account.store_accounts(new_accounts)
-          puts "Money #{money_withdraw&.to_i.to_i}$ was put on #{sender_card.number}. Balance: #{sender_balance}. Tax: #{sender_card.put_tax(money_withdraw&.to_i.to_i)}$\n"
-          puts "Money #{money_withdraw&.to_i.to_i}$ was put on #{user_answer}. Balance: #{recipient_balance}. Tax: #{recipient_card.sender_tax(money_withdraw&.to_i.to_i)}$\n"
+          message(:money_was_put, put: money_withdraw&.to_i.to_i, number: sender_card.number, balance: sender_balance, put_tax: sender_card.put_tax(money_withdraw&.to_i.to_i))
+          message(:money_was_put, put: money_withdraw&.to_i.to_i, number: user_answer, balance: recipient_balance, put_tax: recipient_card.sender_tax(money_withdraw&.to_i.to_i))
           main_menu
         end
       else
-        puts 'You entered wrong number!\n'
+        message(:wrong_number)
       end
     end
   end
 
   def put_money
-    puts 'Choose the card for putting:'
+    message(:choose_card)
 
     if @account.cards.any?
       @account.cards.each_with_index do |c, i|
         puts "- #{c.number}, #{c.type}, press #{i + 1}"
       end
-      puts "press `exit` to exit\n"
+      message(:press_exit)
       loop do
         answer = gets.chomp
-        return puts "There is no active cards!\n" if answer == 'exit'
-        return puts "You entered wrong number!\n" unless answer&.to_i.to_i <= @account.cards.length && answer&.to_i.to_i > 0
+        return message(:active_cards) if answer == 'exit'
+        return message(:wrong_number) unless answer&.to_i.to_i <= @account.cards.length && answer&.to_i.to_i > 0
 
         current_card = @account.cards[answer&.to_i.to_i - 1]
         loop do
-          puts 'Input the amount of money you want to put on your card'
+          message(:amount_of_money)
           user_answer = gets.chomp
-          return puts 'You must input correct amount of money' unless user_answer&.to_i.to_i > 0
+          return message(:correct_amount) unless user_answer&.to_i.to_i > 0
 
           if current_card.put_tax(user_answer&.to_i.to_i) >= user_answer&.to_i.to_i
-            puts 'Your tax is higher than input amount'
+            message(:tax_amount)
             return
           else
             new_money_amount = current_card.balance + user_answer&.to_i.to_i - current_card.put_tax(user_answer&.to_i.to_i)
@@ -246,14 +244,14 @@ class Console
             @account.cards[answer&.to_i.to_i - 1] = current_card
             new_accounts = []
             accounts.each do |ac|
-              if ac.login == @login
-                new_accounts.push(self)
+              if ac.login == @account.login
+                new_accounts.push(@account)
               else
                 new_accounts.push(ac)
               end
             end
             @account.store_accounts(new_accounts)
-            puts "Money #{user_answer&.to_i.to_i} was put on #{current_card.number}. Balance: #{current_card.balance}. Tax: #{current_card.put_tax(user_answer&.to_i.to_i)}"
+            message(:money_was_put, put: user_answer&.to_i.to_i, number: current_card.number, balance: current_card.balance, put_tax: current_card.put_tax(user_answer&.to_i.to_i))
             main_menu
           end
         end
@@ -262,25 +260,25 @@ class Console
   end
 
   def withdraw_money
-    puts 'Choose the card for withdrawing:'
+    message(:choose_card_for_withdrawing)
     answer, user_answer, money_withdraw = nil # answers for gets.chomp
-    puts "There is no active cards!\n" unless @account.cards.any?
+    message(:active_cards) unless @account.cards.any?
 
     @account.cards.each_with_index do |c, i|
       puts "- #{c.number}, #{c.type}, press #{i + 1}"
     end
-    puts "press `exit` to exit\n"
+    message(:press_exit)
 
     loop do
       answer = gets.chomp
       break if answer == 'exit'
-      return puts "You entered wrong number!\n" unless answer&.to_i.to_i <= @account.cards.length && answer&.to_i.to_i > 0
+      return message(:wrong_number) unless answer&.to_i.to_i <= @account.cards.length && answer&.to_i.to_i > 0
 
       current_card = @account.cards[answer&.to_i.to_i - 1]
       loop do
-        puts 'Input the amount of money you want to withdraw'
+        message(:money_withdraw)
         user_answer = gets.chomp
-        return puts 'You must input correct amount of $' unless user_answer&.to_i.to_i > 0
+        return message(:correct_amount) unless user_answer&.to_i.to_i > 0
 
         money_left = current_card.balance - user_answer&.to_i.to_i - current_card.withdraw_tax(user_answer&.to_i.to_i)
         if money_left > 0
@@ -288,17 +286,17 @@ class Console
           @account.cards[answer&.to_i.to_i - 1] = current_card
           new_accounts = []
           accounts.each do |ac|
-            if ac.login == @login
-              new_accounts.push(self)
+            if ac.login == @account.login
+              new_accounts.push(@account)
             else
               new_accounts.push(ac)
             end
           end
           @account.store_accounts(new_accounts)
-          puts "Money #{user_answer&.to_i.to_i} withdrawed from #{current_card.number}$. Money left: #{current_card.balance}$. Tax: #{current_card.withdraw_tax(user_answer&.to_i.to_i)}$"
+          message(:money_was_withdraw, withdraw: user_answer&.to_i.to_i, number: current_card.number, balance: current_card.balance, withdraw_tax: current_card.withdraw_tax(user_answer&.to_i.to_i))
           main_menu
         else
-          return puts "You don't have enough money on card for such operation"
+          return message(:enough_money)
         end
       end
     end
@@ -306,71 +304,65 @@ class Console
 
   def destroy_card
     loop do
-      next unless @account.cards.any?
+      break message(:active_cards) unless @account.cards.any?
 
-      puts 'If you want to delete:'
+      message(:delete_card)
 
       @account.cards.each_with_index do |c, i|
         puts "- #{c.number}, #{c.type}, press #{i + 1}"
       end
-      puts "press `exit` to exit\n"
+      message(:press_exit)
       answer = gets.chomp
-      return puts "There is no active cards!\n" if answer == 'exit'
-      return puts "You entered wrong number!\n" unless answer&.to_i.to_i <= @account.cards.length && answer&.to_i.to_i > 0
+      break if answer == 'exit'
+      return message(:wrong_number) unless answer&.to_i.to_i <= @account.cards.length && answer&.to_i.to_i.positive?
 
-      puts "Are you sure you want to delete #{@account.cards[answer&.to_i.to_i - 1].number}?[y/n]"
+      message(:delete_card_sure, cards: @account.cards[answer&.to_i.to_i - 1].number)
       user_answer = gets.chomp
-      if user_answer == 'y'
-        @account.cards.delete_at(answer&.to_i.to_i - 1)
-        new_accounts = []
-        accounts.each do |ac|
-          if ac.login == @login
-            new_accounts.push(self)
-          else
-            new_accounts.push(ac)
-          end
+      next unless user_answer == 'y'
+
+      @account.cards.delete_at(answer&.to_i.to_i - 1)
+      new_accounts = []
+      accounts.each do |ac|
+        if ac.login == @account.login
+          new_accounts.push(@account)
+        else
+          new_accounts.push(ac)
         end
-        @account.store_accounts(new_accounts)
-        main_menu
-      else
-        return
-        end
+      end
+      @account.store_accounts(new_accounts)
+      break
+      #main_menu
     end
   end
 
   def destroy_account
-    puts 'Are you sure want to destroy account?[y/n]'
+    message(:destroy_account)
     command = gets.chomp
     @account.destroy(command)
   end
 
   def name_input
-    puts 'Enter your name'
+    message(:put_name)
     read_from_console
   end
 
   def age_input
-    puts 'Enter your age'
+    message(:put_age)
     read_from_console.to_i
   end
 
   def login_input
-    puts 'Enter your login'
+    message(:put_login)
     read_from_console
   end
 
   def password_input
-    puts 'Enter your password'
+    message(:put_passw)
     read_from_console
   end
 
   def credit_card_type
-    # puts create_card_message
-    puts 'You could create one of 3 card types'
-    puts '- Usual card. 2% tax on card INCOME. 20$ tax on SENDING money from this card. 5% tax on WITHDRAWING money. For creation this card - press `usual`'
-    puts '- Capitalist card. 10$ tax on card INCOME. 10% tax on SENDING money from this card. 4$ tax on WITHDRAWING money. For creation this card - press `capitalist`'
-    puts '- Virtual card. 1$ tax on card INCOME. 1$ tax on SENDING money from this card. 12% tax on WITHDRAWING money. For creation this card - press `virtual`'
-    puts '- For exit - press `exit`'
+    message(:could_create_one)
     read_from_console
   end
 
@@ -389,38 +381,7 @@ class Console
   end
 
   def main_menu_message
-    #    <<~MAIN_MENU_MESSAGE
-    #      \nWelcome, #{@account.name}
-    #      If you want to:
-    #      - show all cards - press SC
-    #      - create card - press CC
-    #      - destroy card - press DC
-    #      - put money on card - press PM
-    #      - withdraw money on card - press WM
-    #      - send money to another card - press SM
-    #      - destroy account - press 'DA'
-    #      - exit from account - press 'exit'
-    #    MAIN_MENU_MESSAGE
-    #puts "\nWelcome, #{@account.name}"
-    #puts 'If you want to:'
-    #puts '- show all cards - press SC'
-    #puts '- create card - press CC'
-   # puts '- destroy card - press DC'
-    #puts '- put money on card - press PM'
-   # puts '- withdraw money on card - press WM'
-   # puts '- send money to another card  - press SM'
-   # puts '- destroy account - press DA'
-   # puts '- exit from account - press exit'
-    message(:main_menu_message, name: @account.name)
-  end
-
-  def create_card_message
-    <<~CREATE_CARD_MESSAGE
-      You could create one of 3 card types
-      - Usual card. 2% tax on card INCOME. 20$ tax on SENDING money from this card. 5% tax on WITHDRAWING money. For creation this card - press `usual`
-      - Capitalist card. 10$ tax on card INCOME. 10% tax on SENDING money from this card. 4$ tax on WITHDRAWING money. For creation this card - press `capitalist`
-      - Virtual card. 1$ tax on card INCOME. 1$ tax on SENDING money from this card. 12% tax on WITHDRAWING money. For creation this card - press `virtual`
-      - For exit - press `exit`
-    CREATE_CARD_MESSAGE
+    message(:main_menu_message_welcome, name: @account.name)
+    message(:main_menu_message)
   end
 end
