@@ -1,0 +1,84 @@
+en:
+  hello_message:
+    "Hello, we are RubyG bank!\n
+    - If you want to create account - press `create`\n
+    - If you want to load account - press `load`\n
+    - If you want to exit - press `exit`"
+  main_menu_message_welcome:
+    "\nWelcome, %{name}\n"
+  main_menu_message: 
+    "If you want to:\n
+    - show all cards - press SC\n
+    - create card - press CC\n
+    - destroy card - press DC\n
+    - put money on card - press PM\n
+    - withdraw money on card - press WM\n
+    - send money to another card - press SM\n
+    - destroy account - press DA\n
+    - exit from account - press exit"
+  could_create_one:
+    "You could create one of 3 card types\n
+    - Usual card. 2% tax on card INCOME. 20$ tax on SENDING money from this card. 5% tax on WITHDRAWING money. For creation this card - press `usual`\n
+    - Capitalist card. 10$ tax on card INCOME. 10% tax on SENDING money from this card. 4$ tax on WITHDRAWING money. For creation this card - press `capitalist`\n
+    - Virtual card. 1$ tax on card INCOME. 1$ tax on SENDING money from this card. 12% tax on WITHDRAWING money. For creation this card - press `virtual`\n
+    - For exit - press 'exit'"
+  put_login:
+    "Enter your login"
+  put_name:
+    "Enter your name"
+  put_age:
+    "Enter your age"
+  put_passw:
+    "Enter your password"
+  credentials:
+    "There is no account with given credentials"
+  first_account:
+    "There is no active accounts, do you want to be the first?[y/n]"
+  active_cards:
+    "There is no active cards!\n"
+  wrong_command:
+    "Wrong command. Try again"
+  choose_card:
+    "Choose the card for sending:"
+  press_exit:
+    "press `exit` to exit"
+  correct_card:
+    "Choose correct card"
+  recipient_card:
+    "Enter the recipient card:"
+  correct_number:
+    "Please, input correct number of card"
+  card_number:
+    "There is no card with number %{user_answer}"
+  money_withdraw:
+    "Input the amount of money you want to withdraw"
+  money_on_card:
+    "You don't have enough money on card for such operation"
+  no_money:
+    "There is no enough money on sender card"
+  money_was_put:
+    "Money %{put}$ was put on %{number}. Balance: %{balance}$. Tax: %{put_tax}$"
+  wrong_number:
+    "You entered wrong number!"
+  choose_card:
+    "Choose the card for putting:"
+  amount_of_money:
+    "Input the amount of money you want to put on your card"
+  correct_amount:
+    "You must input correct amount of money"
+  tax_amount:
+    "Your tax is higher than input amount"
+  choose_card_for_withdrawing:
+    "Choose the card for withdrawing:"
+  correct_amount:
+    "You must input correct amount of $"
+  money_was_withdraw:
+    "Money %{withdraw}$ withdrawed from %{number}. Money left: %{balance}$. Tax: %{withdraw_tax}$"
+  enough_money:
+    "You don't have enough money on card for such operation"
+  delete_card:
+    "If you want to delete"
+  delete_card_sure:
+    "Are you sure you want to delete %{cards}?[y/n]"
+  destroy_account:
+    "Are you sure want to destroy account?[y/n]"

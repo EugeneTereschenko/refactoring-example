@@ -1,0 +1,7 @@
+require 'yaml'
+require 'i18n'
+require './app/lib/localization.rb'
+require './app/validators/validators.rb'
+require './app/card.rb'
+require './app/account.rb'
+require './app/console.rb'

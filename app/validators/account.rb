@@ -7,7 +7,7 @@ class Validators::Account
 
   def validate(account)
     initialize_account(account)
-
+    @errors = []
     validate_name
     validate_age
     validate_login
@@ -16,11 +16,6 @@ class Validators::Account
 
   def valid?
     @errors.size.zero?
-  end
-
-  def puts_errors
-    @errors.each { |error| puts error }
-    @errors = []
   end
 
   private
@@ -35,7 +30,7 @@ class Validators::Account
 
   def validate_name
     if @name.empty? || @name[0].upcase != @name[0]
-      @errors.push('Your name must not be empty and starts with first upcase letter')
+      @errors.push('Your name must not be empty and starts with first upcase letter!')
     end
   end
 
